@@ -1,0 +1,36 @@
+#!/bin/bash
+
+echo "Running pre-commit checks..."
+
+# Activate virtual environment
+source venv/Scripts/activate
+
+# Run linting
+echo "Running pylint..."
+pylint tools core modules analysis tests || exit 1
+
+# Run type checking
+echo "Running mypy..."
+mypy tools core modules analysis tests || exit 1
+
+# Run security checks
+echo "Running security checks..."
+
+# Check for sensitive data
+if git diff --cached | grep -i "api[_-]key\|secret\|password\|token" > /dev/null; then
+    echo "ERROR: Potential sensitive data detected in commit"
+    exit 1
+fi
+
+# Check for large files
+if git diff --cached --numstat | awk '{if ($1 > 1000 || $2 > 1000) print $3}' | grep . > /dev/null; then
+    echo "ERROR: Large file changes detected. Please review"
+    exit 1
+fi
+
+# Run tests
+echo "Running tests..."
+pytest tests/ -v || exit 1
+
+echo "All checks passed!"
+exit 0

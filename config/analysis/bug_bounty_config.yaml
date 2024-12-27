@@ -1,0 +1,199 @@
+# Bug Bounty Analysis Configuration
+
+# Analysis Settings
+analysis:
+  max_concurrent_analysis: 5
+  confidence_thresholds:
+    critical: 0.85
+    high: 0.80
+    default: 0.75
+  max_chain_length: 4
+  min_chain_impact: 0.70
+
+# Chain Analysis Settings
+vulnerability_chains:
+  chainable_types:
+    - ssrf:
+        chain_weight: 0.9
+        potential_impacts:
+          - rce
+          - data_leak
+          - internal_scan
+    - xss:
+        chain_weight: 0.8
+        potential_impacts:
+          - token_theft
+          - client_side_rce
+    - sql_injection:
+        chain_weight: 0.9
+        potential_impacts:
+          - data_leak
+          - authentication_bypass
+    - file_upload:
+        chain_weight: 0.85
+        potential_impacts:
+          - rce
+          - stored_xss
+    - path_traversal:
+        chain_weight: 0.8
+        potential_impacts:
+          - config_leak
+          - source_code_leak
+    - deserialization:
+        chain_weight: 0.9
+        potential_impacts:
+          - rce
+          - dos
+
+# High Value Targets
+high_value_targets:
+  - type: authentication
+    paths:
+      - /api/v*/auth
+      - /api/v*/login
+      - /api/v*/token
+    focus_areas:
+      - token_handling
+      - session_management
+      - password_reset
+      - mfa_bypass
+
+  - type: file_operations
+    paths:
+      - /api/v*/upload
+      - /api/v*/download
+      - /api/v*/files
+    focus_areas:
+      - file_validation
+      - path_sanitization
+      - access_control
+      - metadata_handling
+
+  - type: user_management
+    paths:
+      - /api/v*/users
+      - /api/v*/admin
+      - /api/v*/roles
+    focus_areas:
+      - privilege_escalation
+      - idor
+      - role_validation
+
+# Special Conditions
+special_conditions:
+  rate_limiting:
+    requires:
+      - business_impact
+      - financial_loss
+      - service_disruption
+    chain_bonus: 0.2
+
+  broken_access_control:
+    requires:
+      - sensitive_data_exposure
+      - privilege_escalation
+      - unauthorized_access
+    chain_bonus: 0.3
+
+  business_logic:
+    requires:
+      - financial_impact
+      - workflow_bypass
+      - state_manipulation
+    chain_bonus: 0.25
+
+# Impact Weights
+impact_weights:
+  critical:
+    base_score: 1.0
+    chain_multiplier: 1.5
+    requirements:
+      - proof_of_concept
+      - clear_impact
+      - reproducible
+
+  high:
+    base_score: 0.8
+    chain_multiplier: 1.3
+    requirements:
+      - proof_of_concept
+      - clear_impact
+
+  medium:
+    base_score: 0.5
+    chain_multiplier: 1.2
+    requirements:
+      - clear_impact
+
+  low:
+    base_score: 0.2
+    chain_multiplier: 1.1
+
+# Analysis Prompts
+prompts:
+  chain_analysis: |
+    Analyze this vulnerability chain for potential impact:
+    1. Check for prerequisite relationships
+    2. Validate technical feasibility
+    3. Assess combined impact
+    4. Consider defense bypasses
+
+    Chain details:
+    {chain_details}
+
+    Target context:
+    {target_context}
+
+  high_value_target: |
+    Analyze this high-value target for security issues:
+    1. Authentication/Authorization flaws
+    2. Business logic vulnerabilities
+    3. Data validation issues
+    4. State management problems
+
+    Target details:
+    {target_details}
+
+    Known vulnerabilities:
+    {known_vulns}
+
+# Reporting Templates
+report_templates:
+  vulnerability_chain: |
+    # Vulnerability Chain Report
+
+    ## Overview
+    {chain_description}
+
+    ## Steps
+    {chain_steps}
+
+    ## Combined Impact
+    {impact_analysis}
+
+    ## Prerequisites
+    {prerequisites}
+
+    ## Proof of Concept
+    {poc_steps}
+
+  high_value_finding: |
+    # High Value Finding Report
+
+    ## Overview
+    {finding_description}
+
+    ## Technical Details
+    {technical_details}
+
+    ## Impact Analysis
+    {impact_analysis}
+
+    ## Reproduction Steps
+    {steps_to_reproduce}
+
+    ## Proof of Concept
+    {poc_code}
+
+    ## Recommended Fix
+    {recommended_fix}

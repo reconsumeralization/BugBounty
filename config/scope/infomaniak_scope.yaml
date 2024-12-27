@@ -1,0 +1,93 @@
+domains:
+  primary:
+    - infomaniak.com
+    - infomaniak.ch
+  secondary:
+    - ik-server.com
+    - infomaniak.site
+
+assets:
+  web_applications:
+    - name: kDrive
+      url: https://kdrive.infomaniak.com
+      paths:
+        - /api/v2/files/*
+        - /api/v2/shares/*
+      excluded:
+        - /api/v2/files/*/versions
+        - /api/v2/admin/*
+
+    - name: kSuite
+      url: https://ksuite.infomaniak.com
+      paths:
+        - /api/v1/*
+      excluded:
+        - /api/v1/debug/*
+
+    - name: Mail Services
+      url: https://mail.infomaniak.com
+      paths:
+        - /api/v1/*
+      excluded:
+        - /api/v1/admin/*
+
+  api_endpoints:
+    - name: LLM API
+      url: https://llm-api.infomaniak.com
+      paths:
+        - /api/v1/llm/*
+      excluded:
+        - /api/v1/llm/internal/*
+
+vulnerability_types:
+  qualifying:
+    - sql_injection
+    - xss
+    - rce
+    - idor
+    - auth_bypass
+    - privilege_escalation
+    - ssrf
+    - file_manipulation
+    - information_disclosure
+
+  excluded:
+    - basic_access_control # Unless critical
+    - rate_limiting # Unless business impact
+    - missing_headers
+    - self_xss
+    - csrf_low_impact
+
+excluded:
+  paths:
+    - /newsletter
+    - /housing
+    - /vha
+    - /synology
+    - /jelastic
+    - /safetracing
+    - /webftp
+    - /debian
+    - /*.ftp.infomaniak.com
+    - /*.vps.infomaniak.com
+    - /*.myd.infomaniak.com
+    - /*.jcloud.ik-server.com
+
+  domains:
+    - newsletter.infomaniak.com
+    - blog.infomaniak.com
+    - status.infomaniak.com
+    - api.pub1.infomaniak.cloud
+
+special_conditions:
+  broken_access_control:
+    requires:
+      - critical_data_leak
+      - personal_data_exposure
+      - business_critical_impact
+
+  rate_limiting:
+    requires:
+      - business_impact
+      - financial_impact
+      - service_disruption

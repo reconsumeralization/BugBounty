@@ -1,0 +1,41 @@
+service: kDrive
+base_url: https://kdrive.infomaniak.com
+priority: critical
+
+test_areas:
+  file_upload:
+    endpoints:
+      - /api/v2/files/upload
+      - /api/v2/files/{file_id}/content
+    checks:
+      - name: "File Type Validation Bypass"
+        description: "Test file upload restrictions bypass"
+        methods:
+          - Content-Type manipulation
+          - Extension manipulation
+          - Magic byte manipulation
+          - Nested archives
+
+  sharing_permissions:
+    endpoints:
+      - /api/v2/files/{file_id}/share
+      - /api/v2/files/{file_id}/permissions
+    checks:
+      - name: "Share Link Permission Escalation"
+        description: "Test share link permission boundaries"
+        focus:
+          - Permission inheritance
+          - Link expiration bypass
+          - Access control manipulation
+
+  api_integration:
+    endpoints:
+      - /api/v2/oauth/*
+      - /api/v2/tokens/*
+    checks:
+      - name: "OAuth Flow Analysis"
+        description: "Test OAuth implementation security"
+        focus:
+          - Token handling
+          - Scope validation
+          - State parameter handling

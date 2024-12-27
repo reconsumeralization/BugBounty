@@ -1,0 +1,97 @@
+# In-Scope Domains and Services
+domains:
+  primary:
+    - infomaniak.com
+    - infomaniak.ch
+
+  services:
+    - manager.infomaniak.com  # Account Management
+    - login.infomaniak.com    # Authentication
+    - kdrive.infomaniak.com   # File Storage
+    - ksuite.infomaniak.com   # Office Suite
+    - mail.infomaniak.com     # Mail Services
+    - api.infomaniak.com      # API Gateway
+    - llm-api.infomaniak.com  # LLM API Service
+
+# Asset Types & Priorities
+assets:
+  web_applications:
+    - name: kDrive
+      url: https://kdrive.infomaniak.com
+      priority: critical
+      focus_areas:
+        - file_upload_handling
+        - sharing_permissions
+        - api_integration
+        - data_leakage
+
+    - name: kSuite
+      url: https://ksuite.infomaniak.com
+      priority: high
+      focus_areas:
+        - document_processing
+        - collaboration_features
+        - integration_points
+        - authentication
+
+    - name: Mail Services
+      url: https://mail.infomaniak.com
+      priority: high
+      focus_areas:
+        - authentication
+        - mail_filtering
+        - smtp_imap_config
+        - data_privacy
+
+  api_endpoints:
+    - name: LLM API
+      url: https://llm-api.infomaniak.com
+      version: v1
+      priority: critical
+      focus_areas:
+        - authentication
+        - rate_limiting
+        - input_validation
+        - data_handling
+
+    - name: API Gateway
+      url: https://api.infomaniak.com
+      version: v1
+      priority: high
+      focus_areas:
+        - authentication
+        - information_leakage
+        - access_control
+
+# Out of Scope
+excluded:
+  - '*.infomaniak.news'
+  - 'blog.infomaniak.com'
+  - 'status.infomaniak.com'
+  - 'housing.infomaniak.com'
+  - 'newsletter.infomaniak.com'
+  - 'vha.infomaniak.com'      # Very high availability hosting
+  - 'synology.infomaniak.com'
+  - 'jelastic.infomaniak.com'
+  - 'safetracing.infomaniak.com'
+  - 'webftp.infomaniak.com'
+  - 'debian.infomaniak.com'
+
+# Testing Rules & Rewards
+rules:
+  rate_limit: 10  # requests per second
+  max_concurrent: 3
+  allowed_hours: "09:00-18:00 CET"
+  rewards:
+    critical:
+      amount: 5000
+      currency: EUR
+    high:
+      amount: 2000
+      currency: EUR
+    medium:
+      amount: 600
+      currency: EUR
+    low:
+      amount: 100
+      currency: EUR

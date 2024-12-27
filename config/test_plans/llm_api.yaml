@@ -1,0 +1,37 @@
+service: LLM API
+base_url: https://llm-api.infomaniak.com
+priority: critical
+
+test_areas:
+  input_validation:
+    endpoints:
+      - /api/v1/llm/{product_id}
+    checks:
+      - name: "Prompt Injection"
+        description: "Test LLM prompt security"
+        methods:
+          - Direct injection
+          - Context manipulation
+          - System prompt leakage
+
+  rate_limiting:
+    endpoints:
+      - /api/v1/llm/*
+    checks:
+      - name: "Rate Limit Analysis"
+        description: "Test rate limiting implementation"
+        focus:
+          - Token counting accuracy
+          - Concurrent request handling
+          - Quota bypass attempts
+
+  authentication:
+    endpoints:
+      - /api/v1/auth/*
+    checks:
+      - name: "Token Security"
+        description: "Test API token security"
+        focus:
+          - Token validation
+          - Scope enforcement
+          - Token reuse/replay

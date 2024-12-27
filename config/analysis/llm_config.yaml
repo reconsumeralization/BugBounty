@@ -1,0 +1,86 @@
+analysis_settings:
+  confidence_threshold: 0.8
+  max_code_length: 2000
+  include_references: true
+
+vulnerability_categories:
+  critical:
+    - authentication_bypass
+    - remote_code_execution
+    - sql_injection
+    - token_theft
+
+  high:
+    - privilege_escalation
+    - ssrf
+    - information_disclosure
+    - business_logic
+
+  medium:
+    - xss
+    - csrf
+    - rate_limiting
+    - input_validation
+
+  low:
+    - missing_headers
+    - verbose_errors
+    - weak_configurations
+
+analysis_prompts:
+  api_security:
+    template: |
+      Analyze this API endpoint for security vulnerabilities:
+      1. Authentication/Authorization flaws
+      2. Input validation issues
+      3. Information disclosure
+      4. Rate limiting bypasses
+
+      Focus on high-impact vulnerabilities that could lead to:
+      - Unauthorized access
+      - Data leakage
+      - System compromise
+
+      Code to analyze:
+      {code}
+
+      Endpoint context:
+      {context}
+
+  file_operations:
+    template: |
+      Review this file handling code for security issues:
+      1. Path traversal
+      2. File type validation
+      3. Storage security
+      4. Access control
+
+      Consider:
+      - Upload vulnerabilities
+      - Download vulnerabilities
+      - Metadata handling
+      - File permissions
+
+      Code to analyze:
+      {code}
+
+      Implementation context:
+      {context}
+
+reporting_template: |
+  # Security Analysis Report
+
+  ## Overview
+  {overview}
+
+  ## Vulnerabilities Found
+  {vulnerabilities}
+
+  ## Risk Assessment
+  {risk_assessment}
+
+  ## Recommendations
+  {recommendations}
+
+  ## References
+  {references}

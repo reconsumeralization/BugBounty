@@ -1,0 +1,38 @@
+# Subdomain Enumeration Sources
+sources:
+  - certspotter
+  - crtsh
+  - dnsdumpster
+  - hackertarget
+  - threatcrowd
+  - virustotal
+
+# Port Scanning Configuration
+port_scan:
+  quick_scan:
+    ports: "80,443,8080,8443"
+    timing: T3
+  full_scan:
+    ports: "1-65535"
+    timing: T2
+
+# Technology Stack Detection
+tech_stack:
+  - wappalyzer
+  - builtwith
+  - whatweb
+
+# Content Discovery
+content_discovery:
+  wordlists:
+    - /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+    - /usr/share/wordlists/seclists/Discovery/Web-Content/raft-large-words.txt
+
+  file_extensions:
+    - php
+    - asp
+    - aspx
+    - jsp
+    - json
+    - xml
+    - txt
