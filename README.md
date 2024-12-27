@@ -1,197 +1,162 @@
 # Security Reconnaissance Automation Framework
 
-A comprehensive framework for automating security testing and vulnerability analysis using LLM capabilities.
-
-## Features
-
-- Automated security analysis using LLM
-- Scope-aware vulnerability detection
-- Caching and rate limiting
-- Comprehensive logging and monitoring
-- Integration with security tools
-- Type-safe implementation
-
-## Setup
-
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd <repository-name>
-```
-
-2. Run the setup script:
-```bash
-chmod +x setup.sh
-./setup.sh
-```
-
-3. Configure environment:
-```bash
-cp .env.example .env
-# Edit .env with your configuration
-```
+A comprehensive framework for automating security testing and vulnerability analysis using LLM capabilities, designed to support multiple bug bounty programs.
 
 ## Project Structure
 
 ```
-.
-├── config/
-│   └── scope/          # Scope definitions
-├── core/               # Core functionality
-├── modules/            # Feature modules
-├── analysis/           # Analysis tools
-├── tests/              # Test suite
-└── tools/
-    ├── manual_testing/ # Manual testing helpers
-    └── analysis/       # Analysis tools
+recon_automation/
+├── config/                    # Configuration files
+│   ├── programs/             # Program-specific configurations
+│   │   ├── microsoft/        # Microsoft bug bounty config
+│   │   ├── google/           # Google VRP config
+│   │   └── infomaniak/       # Infomaniak config
+│   ├── scope.yaml            # Global scope settings
+│   └── recon.yaml            # Global recon settings
+├── tools/                    # Core analysis tools
+│   ├── analysis/            # Analysis modules
+│   │   ├── o1_analyzer.py   # O1 model integration
+│   │   ├── scope_manager.py # Scope validation
+│   │   └── web_analyzer.py  # Web vulnerability analysis
+│   ├── llm/                 # LLM integration tools
+│   └── utils/               # Utility functions
+├── programs/                # Program-specific code
+│   ├── microsoft/           # Microsoft bug bounty
+│   │   ├── analyzers/       # Custom analyzers
+│   │   ├── rules/          # Program-specific rules
+│   │   └── templates/      # Report templates
+│   ├── google/             # Google VRP
+│   └── infomaniak/         # Infomaniak program
+├── tests/                   # Test suite
+│   ├── unit/               # Unit tests
+│   ├── integration/        # Integration tests
+│   └── programs/           # Program-specific tests
+├── documentation/          # Project documentation
+│   ├── programs/          # Program documentation
+│   ├── API.md             # API reference
+│   └── DEVELOPMENT.md     # Development guide
+├── reports/               # Analysis reports
+│   ├── microsoft/        # Microsoft findings
+│   ├── google/          # Google VRP findings
+│   └── infomaniak/      # Infomaniak findings
+└── scripts/              # Utility scripts
 ```
+
+## Features
+
+- **Multi-Program Support**
+  - Program-specific configurations
+  - Custom analysis rules per program
+  - Tailored report templates
+  - Scope management per program
+
+- **Advanced Analysis**
+  - Automated security analysis using OpenAI's O1 model
+  - Vulnerability chain detection and analysis
+  - Scope-aware vulnerability detection
+  - Comprehensive logging and monitoring
+
+- **Security Features**
+  - Rate limiting and request throttling
+  - Input validation and sanitization
+  - Secure configuration management
+  - Audit logging and monitoring
+
+- **Developer Tools**
+  - Type-safe implementation
+  - Comprehensive test suite
+  - Code quality tools
+  - CI/CD integration
+
+## Quick Start
+
+1. **Clone and Setup**:
+   ```bash
+   git clone https://github.com/reconsumeralization/BugBounty.git
+   cd BugBounty
+   ```
+
+2. **Install Dependencies**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # or .\venv\Scripts\activate on Windows
+   pip install -r requirements.txt
+   ```
+
+3. **Configure Program**:
+   ```bash
+   cp config/programs/example.yaml config/programs/your_program.yaml
+   # Edit your_program.yaml with specific settings
+   ```
+
+4. **Run Analysis**:
+   ```bash
+   python tools/run_analysis.py --program microsoft --target example.com
+   ```
+
+## Program-Specific Guidelines
+
+### Microsoft Bug Bounty
+- Supported programs:
+  - Microsoft Online Services
+  - Microsoft Identity
+  - Azure
+  - Windows Security
+- Reward ranges: $500 - $250,000
+- Special focus areas:
+  - Remote Code Execution
+  - Elevation of Privilege
+  - Security Feature Bypass
+
+### Google VRP
+- Supported platforms:
+  - Google Cloud Platform
+  - Android
+  - Chrome
+- Reward ranges: $100 - $31,337
+- Special requirements:
+  - Functional exploits
+  - Clear security impact
+
+### Infomaniak
+- Target scope:
+  - Web applications
+  - API endpoints
+  - Infrastructure
+- Reward ranges: €100 - €10,000
+- Focus areas:
+  - Authentication bypass
+  - Data exposure
+  - Infrastructure security
 
 ## Development
 
-### Prerequisites
+See [Development Guide](documentation/DEVELOPMENT.md) for detailed setup and contribution guidelines.
 
-- Python 3.9+
-- Git
-- Virtual environment
+## Testing
 
-### Code Style
-
-- Follow PEP 8
-- Use type hints
-- Write comprehensive docstrings
-- Include unit tests
-
-### Testing
-
-Run tests:
+Run tests for specific programs:
 ```bash
-pytest tests/ -v
+pytest tests/programs/microsoft/
+pytest tests/programs/google/
+pytest tests/programs/infomaniak/
 ```
 
-Run linting:
-```bash
-pylint tools core modules analysis tests
-```
+## Security
 
-Run type checking:
-```bash
-mypy tools core modules analysis tests
-```
-
-## Security Considerations
-
-- Never commit sensitive data
-- Follow secure coding practices
-- Validate all inputs
-- Handle errors securely
-- Use rate limiting
-- Implement proper access controls
+- All API keys and secrets should be stored in `.env`
+- Follow program-specific security guidelines
+- Respect rate limits and scope boundaries
+- Report findings responsibly
 
 ## Contributing
 
-1. Create a feature branch
-2. Make changes
-3. Run tests and linting
-4. Submit pull request
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
 ## License
 
-[Your License Here]
-
-## Code Quality and Linting
-
-This project uses several tools to maintain code quality and consistency:
-
-### Automatic Formatting
-
-- **Black**: Code formatter that enforces a consistent style
-- **isort**: Sorts and formats import statements
-- **Ruff**: Fast Python linter and code formatter
-
-### Static Type Checking
-
-- **mypy**: Static type checker for Python
-- Strict type checking enabled
-- Type stubs for third-party libraries
-
-### Code Analysis
-
-- **pylint**: Python code analysis tool
-- Custom configuration in `.pylintrc`
-- Enforces coding standards and catches potential errors
-
-### Security Checks
-
-- **Safety**: Checks Python dependencies for known security vulnerabilities
-- **Pre-commit hooks**: Includes security-focused checks
-
-### Pre-commit Hooks
-
-The project uses pre-commit hooks to ensure code quality before commits. To set up:
-
-#### Windows
-```powershell
-# From the project root
-.\scripts\setup_hooks.ps1
-```
-
-#### Linux/MacOS
-```bash
-# From the project root
-./scripts/setup_hooks.sh
-```
-
-### Configuration Files
-
-- `pyproject.toml`: Configuration for Black and mypy
-- `.pylintrc`: Pylint configuration
-- `.pre-commit-config.yaml`: Pre-commit hooks configuration
-
-### Continuous Integration
-
-The linting and type checking are part of the CI pipeline and must pass before merging:
-
-- Black formatting check
-- mypy type checking
-- pylint code analysis
-- Safety security check
-- Unit tests with pytest
-
-### IDE Integration
-
-For VS Code users, add these settings to your workspace:
-
-```json
-{
-    "python.linting.enabled": true,
-    "python.linting.pylintEnabled": true,
-    "python.linting.mypyEnabled": true,
-    "python.formatting.provider": "black",
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-        "source.organizeImports": true
-    }
-}
-```
-
-### Manual Checks
-
-Run individual checks:
-
-```bash
-# Format code
-black .
-
-# Sort imports
-isort .
-
-# Type checking
-mypy .
-
-# Lint code
-pylint tools tests
-
-# Security check
-safety check
-```
-# BugBounty
+This project is licensed under the MIT License - see the LICENSE file for details.

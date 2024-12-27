@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Dict, Any, Optional, Set
+from typing import Dict, Any, Set
 from enum import Enum
 from pathlib import Path
 import yaml
@@ -27,12 +27,20 @@ class ScopeManager:
         with open(path) as f:
             return yaml.safe_load(f)
 
+    def _flatten_endpoints(self, assets: Dict[str, Any]) -> Set[str]:
+        """Flatten nested asset endpoints into a set"""
+        endpoints: Set[str] = set()
+        for asset in assets.values():
+            if 'endpoints' in asset:
+                endpoints.update(set(str(ep) for ep in asset['endpoints']))
+        return endpoints
+
     def _parse_scope_definition(self) -> ScopeDefinition:
         """Parse scope configuration into structured definition"""
         config = self.config
         return ScopeDefinition(
             domains=set(config['domains']['primary'] + config['domains'].get('secondary', [])),
-            endpoints=set(self._flatten_endpoints(config['assets'])),
+            endpoints=self._flatten_endpoints(config['assets']),
             vulnerability_types=set(config['vulnerability_types']['qualifying']),
             excluded_paths=set(config['excluded']['paths']),
             excluded_vulnerabilities=set(config['excluded']['vulnerabilities']),
@@ -60,37 +68,16 @@ class ScopeManager:
         return ScopeStatus.IN_SCOPE
 
     def _is_domain_in_scope(self, domain: str) -> bool:
-        """Check if domain is in scope"""
-        return any(
-            domain.endswith(scope_domain)
-            for scope_domain in self.scope_definition.domains
-        )
+        """Check if a domain is in scope"""
+        return domain in self.scope_definition.domains
 
     def _is_path_excluded(self, path: str) -> bool:
-        """Check if path is explicitly excluded"""
-        return any(
-            excluded in path
-            for excluded in self.scope_definition.excluded_paths
-        )
+        """Check if a path matches any excluded patterns"""
+        return path in self.scope_definition.excluded_paths
 
     def _meets_special_conditions(self, finding: Dict[str, Any]) -> bool:
-        """Check if finding meets special conditions"""
-        conditions = self.scope_definition.special_conditions
-
-        # Check critical BAC condition
-        if finding['type'] == 'broken_access_control':
-            return self._is_critical_bac(finding)
-
-        # Check rate limiting condition
-        if finding['type'] == 'rate_limiting':
-            return self._has_business_impact(finding)
-
+        """Check if finding meets any special scope conditions"""
+        for condition_name, condition_value in self.scope_definition.special_conditions.items():
+            if condition_name in finding and finding[condition_name] != condition_value:
+                return False
         return True
-
-    def _is_critical_bac(self, finding: Dict[str, Any]) -> bool:
-        """Check if BAC finding meets critical criteria"""
-        return (
-            'information_leak' in finding.get('impact', []) or
-            'personal_data' in finding.get('impact', []) or
-            'business_critical' in finding.get('impact', [])
-        )

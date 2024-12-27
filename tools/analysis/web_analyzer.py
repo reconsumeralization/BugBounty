@@ -1,8 +1,12 @@
-from typing import List, Dict, Any, Optional, TypedDict, Sequence
+from typing import List, Dict, Any, Optional, TypedDict, Protocol, Sequence
 from dataclasses import dataclass
 import os
 import logging
-from .o1_analyzer import O1Analyzer, SecurityAnalysisRequest, AnalysisResult
+from .o1_analyzer import O1Analyzer, SecurityAnalysisRequest, AnalysisResult, SecurityContext
+
+class Analyzer(Protocol):
+    async def analyze(self, request: SecurityAnalysisRequest) -> AnalysisResult: ...
+    async def analyze_batch(self, requests: Sequence[SecurityAnalysisRequest]) -> List[AnalysisResult]: ...
 
 @dataclass
 class WebEndpoint:
@@ -42,27 +46,32 @@ class WebVulnerabilityAnalyzer:
     """Specialized analyzer for web vulnerabilities using O1's reasoning"""
 
     def __init__(self):
-        self.analyzer = O1Analyzer()
+        self._analyzer = O1Analyzer()
         self.logger = logging.getLogger(__name__)
-        self.min_code_size = int(os.getenv("MIN_CODE_SIZE", 10))
-        self.max_code_size = int(os.getenv("MAX_CODE_SIZE", 10000))
+        self.min_code_size = int(os.getenv("MIN_CODE_SIZE", "10"))
+        self.max_code_size = int(os.getenv("MAX_CODE_SIZE", "10000"))
 
-    def _prepare_web_context(self, context: WebVulnerabilityContext) -> Dict[str, Any]:
+    def _prepare_web_context(self, context: WebVulnerabilityContext) -> SecurityContext:
         """Prepare specialized web context for analysis"""
-        return {
-            "framework": context.framework,
-            "endpoint": {
-                "url": context.endpoint.url,
-                "method": context.endpoint.method,
-                "parameters": context.endpoint.parameters,
-                "authentication": context.endpoint.authentication,
-                "rate_limits": context.endpoint.rate_limits
-            },
-            "dependencies": context.dependencies,
-            "security_headers": context.security_headers,
-            "authentication_type": context.authentication_type,
-            "input_validation": context.input_validation
-        }
+        return SecurityContext(
+            service="web_vulnerability_analysis",
+            endpoint=context.endpoint.url,
+            method=context.endpoint.method,
+            parameters={
+                "framework": context.framework,
+                "endpoint": {
+                    "url": context.endpoint.url,
+                    "method": context.endpoint.method,
+                    "parameters": context.endpoint.parameters,
+                    "authentication": context.endpoint.authentication,
+                    "rate_limits": context.endpoint.rate_limits
+                },
+                "dependencies": context.dependencies,
+                "security_headers": context.security_headers,
+                "authentication_type": context.authentication_type,
+                "input_validation": context.input_validation
+            }
+        )
 
     def _get_web_vulnerability_types(self) -> List[str]:
         """Get web-specific vulnerability types"""
@@ -73,8 +82,6 @@ class WebVulnerabilityAnalyzer:
             "ssrf",
             "authentication_bypass",
             "authorization_bypass",
-            "rate_limiting_bypass",
-            "information_disclosure",
             "business_logic",
             "api_security"
         ]
@@ -111,16 +118,16 @@ class WebVulnerabilityAnalyzer:
         request = SecurityAnalysisRequest(
             code=code,
             context=self._prepare_web_context(context),
-            vulnerability_types=self._get_web_vulnerability_types(),
-            focus_areas=self._get_web_focus_areas()
+            focus_areas=self._get_web_focus_areas(),
+            vulnerability_types=self._get_web_vulnerability_types()
         )
 
-        return await self.analyzer.analyze(request)
+        return await self._analyzer.analyze(request)
 
     async def analyze_api_endpoints(
         self,
         endpoints: List[tuple[str, WebVulnerabilityContext]]
-    ) -> Sequence[AnalysisResult]:
+    ) -> List[AnalysisResult]:
         """Analyze multiple API endpoints"""
         requests = [
             SecurityAnalysisRequest(
@@ -132,13 +139,13 @@ class WebVulnerabilityAnalyzer:
             for code, context in endpoints
         ]
 
-        batch_size = int(os.getenv("ANALYSIS_BATCH_SIZE", 5))
+        batch_size = int(os.getenv("ANALYSIS_BATCH_SIZE", "5"))
         results: List[AnalysisResult] = []
 
         # Process in batches
         for i in range(0, len(requests), batch_size):
             batch = requests[i:i + batch_size]
-            batch_results = await self.analyzer.analyze_batch(batch)
+            batch_results: List[AnalysisResult] = await self._analyzer.analyze_batch(batch)
             results.extend(batch_results)
 
         return results

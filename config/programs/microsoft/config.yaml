@@ -1,0 +1,117 @@
+# Microsoft Bug Bounty Program Configuration
+
+program:
+  name: "Microsoft Bug Bounty"
+  website: "https://www.microsoft.com/en-us/msrc/bounty"
+  contact: "msrc@microsoft.com"
+
+scope:
+  domains:
+    - "*.microsoft.com"
+    - "*.azure.com"
+    - "*.office.com"
+    - "*.live.com"
+  excluded_domains:
+    - "careers.microsoft.com"
+    - "support.microsoft.com"
+
+  services:
+    - name: "Microsoft Online Services"
+      endpoints:
+        - "*.office365.com"
+        - "*.sharepoint.com"
+      excluded_paths:
+        - "/health"
+        - "/status"
+      reward_range:
+        critical: "$500 - $20,000"
+        high: "$500 - $10,000"
+        medium: "$500 - $5,000"
+
+    - name: "Microsoft Identity"
+      endpoints:
+        - "*.login.microsoftonline.com"
+        - "*.identity.microsoft.com"
+      reward_range:
+        critical: "$500 - $100,000"
+        high: "$500 - $50,000"
+        medium: "$500 - $10,000"
+
+    - name: "Azure"
+      endpoints:
+        - "*.azure.com"
+        - "*.azurewebsites.net"
+      reward_range:
+        critical: "$1,000 - $250,000"
+        high: "$1,000 - $100,000"
+        medium: "$1,000 - $20,000"
+
+vulnerability_types:
+  high_priority:
+    - name: "Remote Code Execution"
+      description: "Ability to execute arbitrary code remotely"
+      reward_multiplier: 2.0
+      required_poc: true
+    - name: "Elevation of Privilege"
+      description: "Gaining higher privileges than intended"
+      reward_multiplier: 1.8
+      required_poc: true
+    - name: "Security Feature Bypass"
+      description: "Bypassing core security controls"
+      reward_multiplier: 1.5
+      required_poc: true
+
+  standard:
+    - name: "Information Disclosure"
+      description: "Exposure of sensitive information"
+      reward_multiplier: 1.0
+    - name: "Spoofing"
+      description: "Impersonation of services or users"
+      reward_multiplier: 1.0
+    - name: "Tampering"
+      description: "Unauthorized modification of data"
+      reward_multiplier: 1.0
+
+analysis:
+  confidence_thresholds:
+    critical: 0.90
+    high: 0.85
+    medium: 0.80
+    low: 0.75
+
+  rate_limits:
+    requests_per_second: 5
+    max_concurrent: 10
+    cooldown_period: 300
+
+  special_conditions:
+    rce:
+      - "Must demonstrate actual code execution"
+      - "Must not cause service disruption"
+    eop:
+      - "Must show privilege escalation path"
+      - "Must affect production environment"
+
+reporting:
+  required_fields:
+    - "vulnerability_type"
+    - "affected_component"
+    - "reproduction_steps"
+    - "impact"
+    - "proof_of_concept"
+
+  templates:
+    critical: "templates/critical_vulnerability.md"
+    high: "templates/high_vulnerability.md"
+    medium: "templates/medium_vulnerability.md"
+    low: "templates/low_vulnerability.md"
+
+  attachments:
+    max_size_mb: 25
+    allowed_types:
+      - ".txt"
+      - ".pdf"
+      - ".zip"
+      - ".mp4"
+      - ".png"
+      - ".jpg"

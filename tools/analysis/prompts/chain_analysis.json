@@ -1,4 +1,52 @@
 {
-  "deep_analysis": "Analyze this vulnerability chain using advanced reasoning to determine exploitability and impact. Consider all technical aspects and potential interactions.\n\nVulnerability Chain:\n{chain_description}\n\nEnvironment Context:\n{context_description}\n\nAnalyze:\n1. Technical feasibility of chaining these vulnerabilities\n2. Required conditions and dependencies\n3. Detection evasion techniques\n4. Impact assessment\n5. Exploitation complexity\n6. Security control effectiveness\n\nProperties:\n- Chain Length: {chain_length}\n- Entry Points: {entry_points}\n- Affected Components: {affected_components}\n- Known Bypasses: {known_bypasses}\n\nProvide analysis in JSON format:\n{\n    \"feasibility\": float,       # Technical feasibility (0.0-1.0)\n    \"complexity\": float,       # Implementation complexity (0.0-1.0)\n    \"impact_score\": float,     # Potential impact (0.0-1.0)\n    \"detection_likelihood\": float, # Detection probability (0.0-1.0)\n    \"reasoning\": string,       # Technical analysis\n    \"prerequisites\": [string], # Required conditions\n    \"mitigations\": [string],  # Security controls\n    \"attack_steps\": [string]  # Exploitation steps\n}",
-  "quick_analysis": "Perform rapid assessment of this vulnerability chain focusing on key technical aspects.\n\nVulnerability Chain:\n{chain_description}\n\nEnvironment Context:\n{context_description}\n\nAnalyze:\n1. Basic technical feasibility\n2. Critical dependencies\n3. Key security impacts\n4. Essential protections\n\nProperties:\n- Chain Length: {chain_length}\n- Entry Points: {entry_points}\n- Affected Components: {affected_components}\n\nProvide analysis in JSON format:\n{\n    \"feasibility\": float,       # Technical feasibility\n    \"complexity\": float,       # Implementation difficulty\n    \"impact_score\": float,     # Potential impact\n    \"detection_likelihood\": float, # Detection chance\n    \"reasoning\": string,       # Key findings\n    \"prerequisites\": [string], # Critical requirements\n    \"mitigations\": [string],  # Key protections\n    \"attack_steps\": [string]  # Basic steps\n}"
+  "deep_analysis": {
+    "feasibility": 0.7,
+    "complexity": 0.6,
+    "impact_score": 0.8,
+    "detection_likelihood": 0.4,
+    "reasoning": "The feasibility hinges on successfully exploiting each vulnerability in sequence. The complexity arises from the potential need for specific timing, data manipulation, and bypassing individual security measures at each stage. High impact is possible if the chain leads to critical system compromise or data exfiltration. Detection is moderate; individual steps might be flagged, but the complete chain execution could appear as legitimate activity if carefully orchestrated. Known bypasses for intermediate steps significantly increase feasibility.",
+    "prerequisites": [
+      "{prerequisite_for_vulnerability_1}",
+      "{prerequisite_for_vulnerability_2}",
+      "{prerequisite_for_vulnerability_3}",
+      "Specific user privileges or network access",
+      "Target system in a specific state"
+    ],
+    "mitigations": [
+      "Input validation and sanitization at all entry points",
+      "Regular security patching of affected components",
+      "Network segmentation to limit lateral movement",
+      "Implementation of strong authentication and authorization mechanisms",
+      "Intrusion Detection and Prevention Systems (IDPS) with signature and anomaly-based detection",
+      "Endpoint Detection and Response (EDR) solutions monitoring for suspicious activity",
+      "Principle of least privilege applied to user accounts and processes"
+    ],
+    "attack_steps": [
+      "Step 1: Exploit {vulnerability_1} at {entry_point_1} to gain initial access or control.",
+      "Step 2: Leverage {vulnerability_2} on {affected_component_2} using the foothold established in Step 1.",
+      "Step 3: Exploit {vulnerability_3} on {affected_component_3} to escalate privileges or achieve the final objective.",
+      "Consideration of timing and dependencies between steps.",
+      "Potential use of obfuscation or encoding to evade detection.",
+      "Lateral movement if necessary to reach target components."
+    ]
+  },
+  "quick_analysis": {
+    "feasibility": 0.6,
+    "complexity": 0.5,
+    "impact_score": 0.7,
+    "detection_likelihood": 0.5,
+    "reasoning": "Basic feasibility depends on individual exploitability and successful chaining. Critical dependencies are the specific requirements for each vulnerability. Key impacts include potential system compromise. Essential protections involve patching and input validation.",
+    "prerequisites": [
+      "{critical_dependency_for_vulnerability_1}",
+      "{critical_dependency_for_vulnerability_2}"
+    ],
+    "mitigations": [
+      "Patching vulnerable components",
+      "Input sanitization at entry points"
+    ],
+    "attack_steps": [
+      "Exploit initial vulnerability.",
+      "Leverage subsequent vulnerabilities to achieve objective."
+    ]
+  }
 }

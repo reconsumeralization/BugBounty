@@ -1,0 +1,83 @@
+# LLM Tools Configuration
+
+# O1 Model Configuration
+o1_model:
+  endpoint: "https://api.openai.com/v1/engines/o1/completions"
+  version: "1.0"
+  max_tokens: 2048
+  temperature: 0.3
+  top_p: 0.95
+  frequency_penalty: 0.0
+  presence_penalty: 0.0
+  stop_sequences: ["\n\n", "```"]
+
+# Rate Limiting
+rate_limits:
+  vulnerability_analysis:
+    requests_per_minute: 60
+    burst: 10
+  chain_analysis:
+    requests_per_minute: 30
+    burst: 5
+  recommendations:
+    requests_per_minute: 45
+    burst: 8
+
+# Timeouts (seconds)
+timeouts:
+  vulnerability_analysis: 30
+  chain_analysis: 45
+  recommendations: 30
+  default: 20
+
+# Caching
+cache:
+  enabled: true
+  ttl_hours: 24
+  max_entries: 1000
+  excluded_tools: []
+
+# Analysis Settings
+analysis:
+  min_confidence: 0.7
+  max_vulnerabilities: 50
+  max_chain_length: 5
+  severity_thresholds:
+    critical: 9.0
+    high: 7.0
+    medium: 4.0
+    low: 0.1
+
+# Tool Categories
+categories:
+  - name: analysis
+    description: "Security analysis tools"
+    enabled: true
+  - name: reconnaissance
+    description: "Reconnaissance tools"
+    enabled: true
+  - name: exploit
+    description: "Exploit generation and validation"
+    enabled: false
+  - name: report
+    description: "Reporting and documentation"
+    enabled: true
+  - name: utility
+    description: "Utility tools"
+    enabled: true
+
+# Logging
+logging:
+  level: INFO
+  file: logs/llm_tools.log
+  format: "%(asctime)s [%(levelname)s] %(message)s"
+  max_size_mb: 10
+  backup_count: 5
+
+# Security
+security:
+  require_authentication: true
+  validate_inputs: true
+  sanitize_outputs: true
+  max_payload_size_mb: 10
+  allowed_file_extensions: [".py", ".js", ".java", ".go", ".rb"]

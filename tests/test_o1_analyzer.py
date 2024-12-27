@@ -1,22 +1,30 @@
 from __future__ import annotations
 
-from typing import AsyncGenerator, Dict
+from typing import AsyncGenerator, List, Protocol, runtime_checkable, Dict, Any
 from datetime import datetime, UTC
 import json
 from unittest.mock import AsyncMock, MagicMock, Mock
 
 import pytest
-from pytest_mock import MockerFixture
+from pytest_mock import MockFixture
 
 from tools.analysis.o1_analyzer import (
     O1Analyzer,
     SecurityAnalysisRequest,
     SecurityContext,
-    AnalysisStatus
+    AnalysisStatus,
+    JsonDict
 )
 
+@runtime_checkable
+class AsyncAnalyzer(Protocol):
+    """Protocol for async analyzer methods."""
+    model: str
+    async def analyze(self, request: SecurityAnalysisRequest) -> JsonDict: ...
+    async def analyze_batch(self, requests: List[SecurityAnalysisRequest]) -> List[JsonDict]: ...
+
 @pytest.fixture
-async def analyzer(mocker: MockerFixture) -> AsyncGenerator[O1Analyzer, None]:
+async def analyzer(mocker: MockFixture) -> AsyncGenerator[O1Analyzer, None]:
     """Create analyzer with mocked OpenAI client"""
     # Mock OpenAI client
     mock_message = Mock()
@@ -53,8 +61,9 @@ async def analyzer(mocker: MockerFixture) -> AsyncGenerator[O1Analyzer, None]:
     mock_client.chat.completions.create.return_value = mock_completion
     mocker.patch("openai.AsyncOpenAI", return_value=mock_client)
 
-    async with O1Analyzer() as analyzer:
-        yield analyzer
+    # Initialize analyzer
+    analyzer = O1Analyzer()
+    yield analyzer
 
 @pytest.fixture
 def sample_code() -> str:
@@ -89,17 +98,18 @@ def sample_request(sample_code: str, sample_context: SecurityContext) -> Securit
 
 @pytest.mark.asyncio
 async def test_analyze_single_request(
-    analyzer: O1Analyzer,
+    analyzer: AsyncAnalyzer,
     sample_request: SecurityAnalysisRequest,
-    mocker: MockerFixture
+    mocker: MockFixture
 ) -> None:
+    """Test single request analysis with mocked OpenAI client"""
     # Arrange
     mock_span = MagicMock()
     mock_tracer = mocker.patch("opentelemetry.trace.get_tracer")
     mock_tracer.return_value.start_as_current_span.return_value.__enter__.return_value = mock_span
 
     # Act
-    result: Dict = await analyzer.analyze(sample_request)
+    result: JsonDict = await analyzer.analyze(sample_request)
 
     # Assert
     assert isinstance(result, dict)
@@ -111,7 +121,8 @@ async def test_analyze_single_request(
     assert result["status"] == AnalysisStatus.SUCCESS
 
     # Validate finding structure
-    finding = result["findings"][0]
+    findings: List[Dict[str, Any]] = result["findings"]
+    finding = findings[0]
     assert finding["title"] == "SQL Injection"
     assert finding["severity"] == "high"
     assert finding["vulnerability_type"] == "sql_injection"
@@ -122,7 +133,8 @@ async def test_analyze_single_request(
     mock_span.set_attribute.assert_any_call("code_length", len(sample_request.code))
 
 @pytest.mark.asyncio
-async def test_analyze_batch_requests(analyzer: O1Analyzer) -> None:
+async def test_analyze_batch_requests(analyzer: AsyncAnalyzer) -> None:
+    """Test batch request analysis"""
     # Arrange
     requests = [
         SecurityAnalysisRequest(
@@ -148,7 +160,7 @@ async def test_analyze_batch_requests(analyzer: O1Analyzer) -> None:
     ]
 
     # Act
-    results = await analyzer.analyze_batch(requests)
+    results: List[JsonDict] = await analyzer.analyze_batch(requests)
 
     # Assert
     assert len(results) == len(requests)
@@ -160,9 +172,10 @@ async def test_analyze_batch_requests(analyzer: O1Analyzer) -> None:
 
 @pytest.mark.asyncio
 async def test_error_handling(
-    analyzer: O1Analyzer,
-    mocker: MockerFixture
+    analyzer: AsyncAnalyzer,
+    mocker: MockFixture
 ) -> None:
+    """Test error handling with invalid requests"""
     # Arrange
     mock_client = AsyncMock()
     mock_client.chat.completions.create.side_effect = Exception("API Error")
@@ -185,17 +198,18 @@ async def test_error_handling(
 
 @pytest.mark.asyncio
 async def test_caching(
-    analyzer: O1Analyzer,
+    analyzer: AsyncAnalyzer,
     sample_request: SecurityAnalysisRequest,
-    mocker: MockerFixture
+    mocker: MockFixture
 ) -> None:
+    """Test caching mechanism"""
     # Arrange
     mock_client = AsyncMock()
     mocker.patch("openai.AsyncOpenAI", return_value=mock_client)
 
     # Act
-    result1 = await analyzer.analyze(sample_request)
-    result2 = await analyzer.analyze(sample_request)
+    result1: JsonDict = await analyzer.analyze(sample_request)
+    result2: JsonDict = await analyzer.analyze(sample_request)
 
     # Assert
     assert result1 == result2
